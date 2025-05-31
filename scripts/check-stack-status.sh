@@ -1,18 +1,21 @@
 #!/bin/bash
 # Script to monitor stack status
 
+# Load configuration
+source "$(dirname "$0")/config.sh"
+
 # Get stack name from argument or prompt
 if [ -z "$1" ]; then
     echo "Usage: $0 <stack-name>"
     echo ""
     echo "Available stacks:"
-    echo "  VTT-Foundation"
-    echo "  VTT-Certificate"
-    echo "  VTT-EdgeFunctions"
-    echo "  VTT-WAF"
-    echo "  VTT-CDN"
-    echo "  VTT-App"
-    echo "  VTT-Monitoring"
+    echo "  $FOUNDATION_STACK"
+    echo "  $CERTIFICATE_STACK"
+    echo "  $EDGE_FUNCTIONS_STACK"
+    echo "  $WAF_STACK"
+    echo "  $CDN_STACK"
+    echo "  $APP_STACK"
+    echo "  $MONITORING_STACK"
     exit 1
 fi
 

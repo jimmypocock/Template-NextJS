@@ -1,12 +1,10 @@
 #!/bin/bash
 
+# Load configuration
+source "$(dirname "$0")/config.sh"
+
 echo "📊 Checking status of all stacks..."
 echo ""
-
-# Load AWS profile from .env if available
-if [ -f .env ]; then
-    export $(cat .env | grep -v '^#' | xargs)
-fi
 
 PROFILE_ARG=""
 if [ -n "$AWS_PROFILE" ]; then
@@ -16,17 +14,18 @@ fi
 # List of stacks to check
 STACKS=(
     # Legacy monolithic stack (being phased out)
-    "VocalTechniqueTranslatorStack"
-    "VocalTechniqueTranslatorWafStack"
-    "VocalTechniqueTranslatorMonitoringStack"
+    "$LEGACY_STACK"
+    "$LEGACY_WAF_STACK"
+    "$LEGACY_MONITORING_STACK"
     
     # New decoupled stacks
-    "VTT-Foundation"
-    "VTT-Certificate"
-    "VTT-EdgeFunctions"
-    "VTT-WAF"
-    "VTT-CDN"
-    "VTT-Monitoring"
+    "$FOUNDATION_STACK"
+    "$CERTIFICATE_STACK"
+    "$EDGE_FUNCTIONS_STACK"
+    "$WAF_STACK"
+    "$CDN_STACK"
+    "$MONITORING_STACK"
+    "$APP_STACK"
 )
 
 # Function to get stack status

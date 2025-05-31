@@ -1,12 +1,11 @@
 #!/bin/bash
 set -e
 
-echo "🔐 Deploying Certificate Stack..."
+# Load configuration
+source "$(dirname "$0")/config.sh"
 
-# Load environment variables
-if [ -f .env ]; then
-    export $(cat .env | grep -v '^#' | xargs)
-fi
+echo "🔐 Deploying Certificate Stack..."
+echo "📝 Stack name: $CERTIFICATE_STACK"
 
 # Check AWS credentials
 if ! aws sts get-caller-identity &> /dev/null; then
@@ -24,7 +23,7 @@ npm run build
 
 # Deploy only the certificate stack
 echo "☁️  Deploying certificate..."
-npx cdk deploy VTT-Certificate --require-approval never "$@"
+npx cdk deploy "$CERTIFICATE_STACK" --require-approval never "$@"
 
 cd ..
 

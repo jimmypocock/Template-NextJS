@@ -10,4 +10,4 @@ Allow: /
 User-agent: Mediapartners-Google
 Allow: /
 
-Sitemap: https://vocaltechniquetranslator.com/sitemap.xml
+Sitemap: https://yourdomain.com/sitemap.xml

@@ -33,7 +33,7 @@ export default function HowItWorks() {
           <div className="prose prose-lg dark:prose-invert max-w-none">
             <p className="text-xl text-gray-600 dark:text-gray-300 mb-8">
               This template provides a complete foundation for building modern web applications. 
-              Here's everything you need to know to get started.
+              Here&apos;s everything you need to know to get started.
             </p>
 
             <h2 className="text-2xl font-bold mb-4">Getting Started</h2>

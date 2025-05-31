@@ -26,8 +26,8 @@ export class CdnStack extends Stack {
 
     // Response Headers Policy
     const responseHeadersPolicy = new cloudfront.ResponseHeadersPolicy(this, 'SecurityHeadersPolicy', {
-      responseHeadersPolicyName: 'VocalTechniqueTranslatorSecurityPolicy',
-      comment: 'Security headers for Vocal Technique Translator',
+      responseHeadersPolicyName: `${this.stackName}-SecurityPolicy`,
+      comment: `Security headers for ${this.stackName}`,
       securityHeadersBehavior: {
         contentTypeOptions: { override: true },
         frameOptions: { 
@@ -68,8 +68,8 @@ export class CdnStack extends Stack {
 
     // Cache Policy
     const cachePolicy = new cloudfront.CachePolicy(this, 'CachePolicy', {
-      cachePolicyName: 'VocalTechniqueTranslatorCachePolicy',
-      comment: 'Cache policy for Vocal Technique Translator',
+      cachePolicyName: `${this.stackName}-CachePolicy`,
+      comment: `Cache policy for ${this.stackName}`,
       defaultTtl: Duration.hours(24),
       minTtl: Duration.seconds(0),
       maxTtl: Duration.days(365),
@@ -109,7 +109,7 @@ export class CdnStack extends Stack {
       logBucket: logsBucket,
       logFilePrefix: 'cloudfront-logs/',
       enableLogging: true,
-      comment: 'Vocal Technique Translator CDN Distribution',
+      comment: `${this.stackName} CDN Distribution`,
       errorResponses: [
         {
           httpStatus: 403,

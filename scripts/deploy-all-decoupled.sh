@@ -1,12 +1,10 @@
 #!/bin/bash
 set -e
 
-echo "🚀 Deploying All Stacks (Decoupled Architecture)..."
+# Load configuration
+source "$(dirname "$0")/config.sh"
 
-# Load environment variables
-if [ -f .env ]; then
-    export $(cat .env | grep -v '^#' | xargs)
-fi
+echo "🚀 Deploying All Stacks (Decoupled Architecture)..."
 
 # Pass all arguments to each deployment script
 ARGS="$@"
@@ -27,7 +25,7 @@ if [ "$BUILD_NEXTJS" = true ]; then
 fi
 
 # Check if foundation exists
-FOUNDATION_EXISTS=$(aws cloudformation describe-stacks --stack-name VTT-Foundation --region us-east-1 2>&1 | grep -c "VTT-Foundation" || true)
+FOUNDATION_EXISTS=$(aws cloudformation describe-stacks --stack-name "$FOUNDATION_STACK" --region us-east-1 2>&1 | grep -c "$FOUNDATION_STACK" || true)
 
 if [ "$FOUNDATION_EXISTS" -eq 0 ]; then
     echo ""
@@ -40,7 +38,7 @@ else
 fi
 
 # Check if certificate exists
-CERT_EXISTS=$(aws cloudformation describe-stacks --stack-name VTT-Certificate --region us-east-1 2>&1 | grep -c "VTT-Certificate" || true)
+CERT_EXISTS=$(aws cloudformation describe-stacks --stack-name "$CERTIFICATE_STACK" --region us-east-1 2>&1 | grep -c "$CERTIFICATE_STACK" || true)
 
 if [ "$CERT_EXISTS" -eq 0 ] && [ -z "$CERTIFICATE_ARN" ]; then
     echo ""
@@ -104,7 +102,7 @@ echo "   App:           Application content deployment"
 echo "   Monitoring:    CloudWatch dashboards and alerts"
 echo ""
 echo "🌐 Your site is available at:"
-echo "   https://www.vocaltechniquetranslator.com"
+echo "   https://www.$DOMAIN_NAME"
 echo ""
 echo "📊 CloudWatch Dashboard:"
 echo "   https://console.aws.amazon.com/cloudwatch/home?region=us-east-1#dashboards:"

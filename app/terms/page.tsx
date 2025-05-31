@@ -59,7 +59,7 @@ export default function Terms() {
 
             <h2 className="text-2xl font-bold mb-4">3. Disclaimer</h2>
             <p className="text-gray-600 dark:text-gray-300 mb-6">
-              The materials in this application are provided on an 'as is' basis. We make no warranties, expressed or implied, 
+              The materials in this application are provided on an &apos;as is&apos; basis. We make no warranties, expressed or implied, 
               and hereby disclaim and negate all other warranties including without limitation, implied warranties or conditions 
               of merchantability, fitness for a particular purpose, or non-infringement of intellectual property or other violation of rights.
             </p>
@@ -83,7 +83,7 @@ export default function Terms() {
             <p className="text-gray-600 dark:text-gray-300 mb-6">
               We have not reviewed all of the sites linked to our application and are not responsible for the contents of 
               any such linked site. The inclusion of any link does not imply endorsement by us of the site. Use of any 
-              such linked website is at the user's own risk.
+              such linked website is at the user&apos;s own risk.
             </p>
 
             <h2 className="text-2xl font-bold mb-4">7. Modifications</h2>

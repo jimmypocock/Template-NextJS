@@ -5,17 +5,20 @@ A production-ready Next.js template with comprehensive AWS infrastructure, Googl
 ## Features
 
 ### 🚀 Modern Tech Stack
+
 - **Next.js 15** with App Router
 - **TypeScript** for type safety
 - **Tailwind CSS** for rapid UI development
 - **ESLint** for code quality
 
 ### 🔧 Google Integrations
+
 - **Google Analytics** with consent management
 - **Google AdSense** with privacy-compliant setup
 - **Cookie Consent Management Platform (CMP)**
 
 ### ☁️ AWS Infrastructure
+
 - **Complete CDK setup** with multiple stacks
 - **CloudFront CDN** for global content delivery
 - **S3** for static hosting
@@ -25,29 +28,93 @@ A production-ready Next.js template with comprehensive AWS infrastructure, Googl
 - **CloudWatch** monitoring and alerts
 
 ### 🎨 UI/UX Features
+
 - **Dark/Light theme** toggle
 - **Responsive design** for all devices
 - **Beautiful gradient backgrounds** with animated orbs
 - **Glass morphism** design elements
 - **Accessible** and SEO optimized
 
+## 🖼️ Preview
+
+<div align="center">
+  <table>
+    <tr>
+      <td align="center">
+        <img src="docs/images/light-mode.png" alt="Light Mode Preview" width="400"/>
+        <br />
+        <em>Light Mode</em>
+      </td>
+      <td align="center">
+        <img src="docs/images/dark-mode.png" alt="Dark Mode Preview" width="400"/>
+        <br />
+        <em>Dark Mode</em>
+      </td>
+    </tr>
+  </table>
+</div>
+
+> **💡 Making this a GitHub Template Repository**
+> 
+> If you're the repository owner and want to make this a template for others to use:
+> 1. Go to your repository **Settings**
+> 2. Scroll down to the **"Template repository"** section
+> 3. Check the box **"Template repository"**
+> 4. This will add a **"Use this template"** button for others to easily create new repositories
+
 ## Quick Start
 
-### 1. Clone and Setup
+### 1. Create Your New Repository
+
+Choose one of these methods to get started with the template:
+
+#### Method A: Use GitHub Template (Recommended)
+
+1. Click the **"Use this template"** button at the top of this repository
+2. Choose **"Create a new repository"**
+3. Name your repository and set visibility
+4. Clone your new repository:
+
+```bash
+git clone https://github.com/yourusername/your-new-repo-name.git
+cd your-new-repo-name
+```
+
+#### Method B: Manual Copy
+
+If you prefer to copy the files manually:
 
 ```bash
 # Clone this template
-git clone <your-template-repo> your-project-name
+git clone https://github.com/original-repo/nextjs-aws-template.git your-project-name
 cd your-project-name
 
-# Install dependencies
+# Remove the original git history and create a new repository
+rm -rf .git
+git init
+git add .
+git commit -m "Initial commit from NextJS AWS Template"
+
+# Connect to your new GitHub repository
+git remote add origin https://github.com/yourusername/your-new-repo-name.git
+git branch -M main
+git push -u origin main
+```
+
+### 2. Install Dependencies
+
+```bash
+# Install Next.js dependencies
 npm install
+
+# Install CDK dependencies
+npm run cdk:install
 
 # Copy environment file
 cp .env.example .env
 ```
 
-### 2. Configure Environment Variables
+### 3. Configure Environment Variables
 
 Edit `.env` with your values:
 
@@ -67,7 +134,61 @@ DOMAIN_NAME=yourdomain.com
 APP_NAME=your-app-name
 ```
 
-### 3. Start Development
+### 4. Configure Template Names
+
+This template uses configurable naming conventions. Update these key areas:
+
+#### Environment Variables (`.env`)
+
+```bash
+# Application Identity
+APP_NAME=my-awesome-app              # Used for branding and stack naming
+DOMAIN_NAME=myapp.com               # Your domain (without www)
+STACK_PREFIX=MYAPP                  # AWS stack prefix (optional, defaults to uppercase APP_NAME)
+
+# AWS Stack Names Generated:
+# MYAPP-Foundation, MYAPP-Certificate, MYAPP-EdgeFunctions, 
+# MYAPP-WAF, MYAPP-CDN, MYAPP-App, MYAPP-Monitoring
+```
+
+#### Required File Updates
+
+**1. Update Package Information (`package.json`)**
+
+```json
+{
+  "name": "my-awesome-app",
+  "description": "Description of my awesome application"
+}
+```
+
+**2. Update Site Metadata (`app/layout.tsx`)**
+
+```typescript
+export const metadata: Metadata = {
+  title: "My Awesome App | Professional Description",
+  description: "Description of my awesome application and what it does for users.",
+  // ... update all metadata fields
+};
+```
+
+**3. Update Schema Markup (`app/layout.tsx`)**
+
+```json
+{
+  "@type": "WebApplication", 
+  "name": "My Awesome App",
+  "description": "Description of my application and its purpose.",
+  "url": "https://myapp.com"
+}
+```
+
+**4. Update Public Files**
+
+- `public/robots.txt`: Update sitemap URL to your domain
+- `public/ads.txt`: Add your Google AdSense publisher ID
+
+### 5. Start Development
 
 ```bash
 # Start development server
@@ -109,6 +230,7 @@ theme: {
 ### 📝 Content Updates
 
 #### App Metadata
+
 Update `app/layout.tsx`:
 - Title and description
 - Open Graph metadata
@@ -116,6 +238,7 @@ Update `app/layout.tsx`:
 - Keywords
 
 #### Page Content
+
 - `app/page.tsx` - Home page
 - `app/about/page.tsx` - About page
 - `app/how-it-works/page.tsx` - Documentation
@@ -123,6 +246,7 @@ Update `app/layout.tsx`:
 - `app/terms/page.tsx` - Terms of service
 
 #### Package Information
+
 Update `package.json`:
 ```json
 {
@@ -134,11 +258,13 @@ Update `package.json`:
 ### 🔧 Google Services Setup
 
 #### Google Analytics
+
 1. Create a GA4 property at [analytics.google.com](https://analytics.google.com)
 2. Copy your Measurement ID (G-XXXXXXXXXX)
 3. Update `NEXT_PUBLIC_GA_MEASUREMENT_ID` in `.env`
 
 #### Google AdSense
+
 1. Apply for AdSense at [adsense.google.com](https://adsense.google.com)
 2. Get your Publisher ID (ca-pub-XXXXXXXXXXXXXXXXX)
 3. Update `NEXT_PUBLIC_ADSENSE_CLIENT_ID` in `.env`
@@ -165,11 +291,13 @@ npx cdk bootstrap
 ### Deployment Options
 
 #### Option 1: Deploy Everything (Recommended)
+
 ```bash
 npm run deploy:all
 ```
 
 #### Option 2: Deploy Individual Stacks
+
 ```bash
 # Deploy in order:
 npm run deploy:foundation
@@ -270,12 +398,14 @@ npm run maintenance:off
 ## Monitoring & Maintenance
 
 ### CloudWatch Dashboards
+
 Access monitoring dashboards in AWS Console:
 - Application performance metrics
 - Error tracking and alerts
 - Infrastructure health monitoring
 
 ### Maintenance Mode
+
 ```bash
 # Enable maintenance mode
 npm run maintenance:on
@@ -294,6 +424,7 @@ npm run maintenance:off
 ### Common Issues
 
 **Build Errors**
+
 ```bash
 # Clear Next.js cache
 rm -rf .next
@@ -304,6 +435,7 @@ npm install
 ```
 
 **CDK Deployment Errors**
+
 ```bash
 # Check AWS credentials
 aws sts get-caller-identity

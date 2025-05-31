@@ -1,7 +1,11 @@
 #!/bin/bash
 set -e
 
-STACK_NAME="VTT-CDN"
+# Load configuration
+source "$(dirname "$0")/config.sh"
+
+# Use CDN stack as default or accept first argument
+STACK_NAME="${1:-$CDN_STACK}"
 REGION="us-east-1"
 
 echo "🔍 Diagnosing stack: $STACK_NAME"

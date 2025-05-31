@@ -1,13 +1,12 @@
 #!/bin/bash
 set -e
 
-echo "🏗️  Deploying Foundation Stack (S3 Buckets)..."
-echo "⚠️  This stack has termination protection enabled"
+# Load configuration
+source "$(dirname "$0")/config.sh"
 
-# Load environment variables
-if [ -f .env ]; then
-    export $(cat .env | grep -v '^#' | xargs)
-fi
+echo "🏗️  Deploying Foundation Stack (S3 Buckets)..."
+echo "📝 Stack name: $FOUNDATION_STACK"
+echo "⚠️  This stack has termination protection enabled"
 
 # Check AWS credentials
 if ! aws sts get-caller-identity &> /dev/null; then
@@ -25,7 +24,7 @@ npm run build
 
 # Deploy foundation stack
 echo "☁️  Deploying foundation resources..."
-npx cdk deploy VTT-Foundation --require-approval never "$@"
+npx cdk deploy "$FOUNDATION_STACK" --require-approval never "$@"
 
 cd ..
 

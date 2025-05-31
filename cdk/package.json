@@ -1,7 +1,7 @@
 {
-  "name": "vocal-technique-translator-infrastructure",
+  "name": "nextjs-aws-template-infrastructure",
   "version": "1.0.0",
-  "description": "CDK infrastructure for Vocal Technique Translator",
+  "description": "CDK infrastructure for NextJS AWS Template",
   "main": "lib/index.js",
   "scripts": {
     "build": "tsc",

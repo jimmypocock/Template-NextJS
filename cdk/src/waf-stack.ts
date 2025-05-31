@@ -96,7 +96,7 @@ export class WafStack extends Stack {
     };
 
     // Create Web ACL
-    this.webAcl = new wafv2.CfnWebACL(this, 'VocalTranslatorWebAcl', {
+    this.webAcl = new wafv2.CfnWebACL(this, 'AppWebAcl', {
       scope: 'CLOUDFRONT',
       defaultAction: {
         allow: {}
@@ -110,7 +110,7 @@ export class WafStack extends Stack {
       visibilityConfig: {
         sampledRequestsEnabled: true,
         cloudWatchMetricsEnabled: true,
-        metricName: 'VocalTranslatorWebAcl',
+        metricName: `${this.stackName}-WebAcl`,
       },
     });
 

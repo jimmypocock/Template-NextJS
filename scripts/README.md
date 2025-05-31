@@ -1,6 +1,6 @@
 # Scripts Directory
 
-This directory contains all deployment and maintenance scripts for the Vocal Technique Translator.
+This directory contains all deployment and maintenance scripts for the NextJS AWS Template.
 
 ## Deployment Scripts
 
@@ -40,21 +40,22 @@ This directory contains all deployment and maintenance scripts for the Vocal Tec
 
 All scripts:
 
-1. Load AWS profile from .env automatically
-2. Check for AWS credentials before proceeding
-3. Build CDK TypeScript if needed
-4. Provide clear status messages
-5. Exit with proper error codes
-6. Support the decoupled architecture with proper dependencies
+1. Load configuration from config.sh (which reads .env)
+2. Use configurable stack names based on STACK_PREFIX
+3. Check for AWS credentials before proceeding
+4. Build CDK TypeScript if needed
+5. Provide clear status messages
+6. Exit with proper error codes
+7. Support the decoupled architecture with proper dependencies
 
 ## Common Script Patterns
 
 ```bash
 # All scripts follow this pattern:
-1. Load .env variables
+1. Load configuration from config.sh
 2. Check AWS credentials
 3. Build CDK (if needed)
-4. Execute CDK deployment
+4. Execute CDK deployment with configurable stack names
 5. Provide success/failure feedback
 ```
 
@@ -62,10 +63,20 @@ All scripts:
 
 When deploying, ensure stacks are deployed in this order:
 
-1. VTT-Foundation (required by CDN and App)
-2. VTT-Certificate (required by CDN)
-3. VTT-EdgeFunctions (required by CDN)
-4. VTT-WAF (optional, used by CDN)
-5. VTT-CDN (required by App)
-6. VTT-App (deploys content)
-7. VTT-Monitoring (optional, monitors CDN)
+1. {STACK_PREFIX}-Foundation (required by CDN and App)
+2. {STACK_PREFIX}-Certificate (required by CDN)
+3. {STACK_PREFIX}-EdgeFunctions (required by CDN)
+4. {STACK_PREFIX}-WAF (optional, used by CDN)
+5. {STACK_PREFIX}-CDN (required by App)
+6. {STACK_PREFIX}-App (deploys content)
+7. {STACK_PREFIX}-Monitoring (optional, monitors CDN)
+
+## Configuration
+
+All scripts use the configuration from `config.sh` which reads environment variables:
+
+- `APP_NAME`: Application name (e.g., "my-app")
+- `DOMAIN_NAME`: Domain name (e.g., "myapp.com")
+- `STACK_PREFIX`: AWS stack prefix (defaults to uppercase APP_NAME)
+
+Stack names are generated as `{STACK_PREFIX}-{StackType}` (e.g., "MYAPP-Foundation").

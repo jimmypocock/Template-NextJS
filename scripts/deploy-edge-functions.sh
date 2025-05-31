@@ -1,14 +1,11 @@
 #!/bin/bash
 set -e
 
-echo "⚡ Deploying Edge Functions Stack..."
+# Load configuration
+source "$(dirname "$0")/config.sh"
 
-# Load environment variables
-if [ -f .env ]; then
-    set -a  # automatically export all variables
-    source .env
-    set +a  # stop automatically exporting
-fi
+echo "⚡ Deploying Edge Functions Stack..."
+echo "📝 Stack name: $EDGE_FUNCTIONS_STACK"
 
 # Check AWS credentials
 if ! aws sts get-caller-identity &> /dev/null; then
@@ -26,7 +23,7 @@ npm run build
 
 # Deploy edge functions stack
 echo "☁️  Deploying CloudFront functions..."
-npx cdk deploy VTT-EdgeFunctions --require-approval never "$@"
+npx cdk deploy "$EDGE_FUNCTIONS_STACK" --require-approval never "$@"
 
 cd ..
 

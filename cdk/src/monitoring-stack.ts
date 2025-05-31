@@ -20,8 +20,8 @@ export class MonitoringStack extends Stack {
     super(scope, id, props);
 
     // SNS Topic for alerts
-    this.alertTopic = new sns.Topic(this, 'VocalTranslatorAlerts', {
-      displayName: 'Vocal Technique Translator Alerts',
+    this.alertTopic = new sns.Topic(this, 'AppAlerts', {
+      displayName: `${this.stackName} Alerts`,
     });
 
     // Add email subscription if provided
@@ -32,8 +32,8 @@ export class MonitoringStack extends Stack {
     }
 
     // CloudWatch Log Group for application logs
-    const logGroup = new logs.LogGroup(this, 'VocalTranslatorLogs', {
-      logGroupName: '/aws/cloudfront/vocal-technique-translator',
+    const logGroup = new logs.LogGroup(this, 'AppLogs', {
+      logGroupName: `/aws/cloudfront/${this.stackName.toLowerCase()}`,
       retention: logs.RetentionDays.ONE_MONTH,
     });
 
@@ -167,8 +167,8 @@ export class MonitoringStack extends Stack {
     );
 
     // CloudWatch Dashboard
-    this.dashboard = new cloudwatch.Dashboard(this, 'VocalTranslatorDashboard', {
-      dashboardName: 'vocal-technique-translator-metrics',
+    this.dashboard = new cloudwatch.Dashboard(this, 'AppDashboard', {
+      dashboardName: `${this.stackName.toLowerCase()}-metrics`,
     });
 
     // Add widgets to dashboard

@@ -1,10 +1,8 @@
 #!/bin/bash
 set -e
 
-# Load environment variables
-if [ -f .env ]; then
-    export $(cat .env | grep -v '^#' | xargs)
-fi
+# Load configuration
+source "$(dirname "$0")/config.sh"
 
 PROFILE_ARG=""
 if [ -n "$AWS_PROFILE" ]; then
@@ -17,7 +15,7 @@ enable_maintenance() {
     
     # Get the S3 bucket name from Foundation stack
     BUCKET_NAME=$(aws cloudformation describe-stacks \
-        --stack-name VTT-Foundation \
+        --stack-name "$FOUNDATION_STACK" \
         --query 'Stacks[0].Outputs[?OutputKey==`WebsiteBucketName`].OutputValue' \
         --output text \
         --region us-east-1 \
@@ -46,7 +44,7 @@ enable_maintenance() {
     
     # Get CloudFront distribution ID from CDN stack
     DIST_ID=$(aws cloudformation describe-stacks \
-        --stack-name VTT-CDN \
+        --stack-name "$CDN_STACK" \
         --query 'Stacks[0].Outputs[?OutputKey==`DistributionId`].OutputValue' \
         --output text \
         --region us-east-1 \
@@ -99,7 +97,7 @@ update_maintenance() {
     
     # Get bucket name from Foundation stack
     BUCKET_NAME=$(aws cloudformation describe-stacks \
-        --stack-name VTT-Foundation \
+        --stack-name "$FOUNDATION_STACK" \
         --query 'Stacks[0].Outputs[?OutputKey==`WebsiteBucketName`].OutputValue' \
         --output text \
         --region us-east-1 \
@@ -112,7 +110,7 @@ update_maintenance() {
     
     # Invalidate CloudFront
     DIST_ID=$(aws cloudformation describe-stacks \
-        --stack-name VTT-CDN \
+        --stack-name "$CDN_STACK" \
         --query 'Stacks[0].Outputs[?OutputKey==`DistributionId`].OutputValue' \
         --output text \
         --region us-east-1 \

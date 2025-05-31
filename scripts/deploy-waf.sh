@@ -1,12 +1,11 @@
 #!/bin/bash
 set -e
 
-echo "🛡️  Deploying WAF Stack..."
+# Load configuration
+source "$(dirname "$0")/config.sh"
 
-# Load environment variables
-if [ -f .env ]; then
-    export $(cat .env | grep -v '^#' | xargs)
-fi
+echo "🛡️  Deploying WAF Stack..."
+echo "📝 Stack name: $WAF_STACK"
 
 # Check AWS credentials
 if ! aws sts get-caller-identity &> /dev/null; then
@@ -24,7 +23,7 @@ npm run build
 
 # Deploy only the WAF stack
 echo "☁️  Deploying WAF rules..."
-npx cdk deploy VTT-WAF --require-approval never "$@"
+npx cdk deploy "$WAF_STACK" --require-approval never "$@"
 
 cd ..
 

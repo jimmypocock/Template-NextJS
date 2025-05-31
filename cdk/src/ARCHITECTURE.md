@@ -11,7 +11,7 @@
 
 ### 1. Foundation Stack (Deploy Once)
 ```
-VTT-Foundation
+{STACK_PREFIX}-Foundation
 ├── S3 Bucket (content storage)
 ├── S3 Bucket (logs)
 └── Outputs: BucketName, LogsBucketName
@@ -21,7 +21,7 @@ VTT-Foundation
 
 ### 2. Certificate Stack (Deploy Once)
 ```
-VTT-Certificate
+{STACK_PREFIX}-Certificate
 ├── ACM Certificate
 └── Outputs: CertificateArn
 ```
@@ -30,7 +30,7 @@ VTT-Certificate
 
 ### 3. Edge Functions Stack
 ```
-VTT-EdgeFunctions
+{STACK_PREFIX}-EdgeFunctions
 ├── CloudFront Function (Redirects)
 ├── CloudFront Function (Security Headers)
 └── Outputs: FunctionArns
@@ -40,7 +40,7 @@ VTT-EdgeFunctions
 
 ### 4. CDN Stack (Main Application)
 ```
-VTT-CDN
+{STACK_PREFIX}-CDN
 ├── CloudFront Distribution
 ├── Origin Access Identity
 └── Outputs: DistributionId, DomainName
@@ -51,7 +51,7 @@ VTT-CDN
 
 ### 5. WAF Stack
 ```
-VTT-WAF
+{STACK_PREFIX}-WAF
 ├── WAF WebACL
 ├── Rate Limiting Rules
 ├── Geo Blocking Rules
@@ -62,7 +62,7 @@ VTT-WAF
 
 ### 6. App Stack
 ```
-VTT-App
+{STACK_PREFIX}-App
 ├── Content Deployment
 ├── S3 Sync
 ├── CloudFront Invalidation
@@ -73,7 +73,7 @@ VTT-App
 
 ### 7. Monitoring Stack
 ```
-VTT-Monitoring
+{STACK_PREFIX}-Monitoring
 ├── CloudWatch Dashboards
 ├── SNS Topics
 ├── Billing Alarms ($10, $50, $100)
@@ -155,9 +155,9 @@ The migration from monolithic to decoupled architecture has been completed:
    - Certificate attached and SSL working
    - WAF protection active
 
-3. **Phase 3**: In Progress
-   - Old monolithic stack (VocalTechniqueTranslatorStack) can be deleted
-   - DNS update required to point to new CloudFront distribution
+3. **Phase 3**: Template Configuration
+   - Configure APP_NAME, DOMAIN_NAME, and STACK_PREFIX in environment variables
+   - Old legacy stacks can be cleaned up using the destroy scripts
 
 ## Example: Edge Functions Stack
 
@@ -180,7 +180,7 @@ export class EdgeFunctionsStack extends Stack {
     // Export for other stacks
     new CfnOutput(this, 'RedirectFunctionArn', {
       value: this.redirectFunction.functionArn,
-      exportName: 'VocalTranslator-RedirectFunctionArn',
+      exportName: `${this.stackName}-RedirectFunctionArn`,
     });
   }
 }

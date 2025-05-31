@@ -59,7 +59,7 @@ export class EdgeFunctionsStack extends Stack {
           return request;
         }
       `),
-      comment: 'Handles redirects and static route mapping for Vocal Technique Translator',
+      comment: `Handles redirects and static route mapping for ${this.stackName}`,
     });
 
     // Security Headers Function

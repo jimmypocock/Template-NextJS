@@ -1,14 +1,11 @@
 #!/bin/bash
 set -e
 
-echo "🌐 Deploying CDN Stack..."
+# Load configuration
+source "$(dirname "$0")/config.sh"
 
-# Load environment variables
-if [ -f .env ]; then
-    set -a  # automatically export all variables
-    source .env
-    set +a  # stop automatically exporting
-fi
+echo "🌐 Deploying CDN Stack..."
+echo "📝 Stack name: $CDN_STACK"
 
 # Check if we should build NextJS
 BUILD_NEXTJS=false
@@ -44,9 +41,9 @@ echo "☁️  Deploying CDN distribution..."
 # Pass the certificate ARN from environment variable if it exists
 if [ -n "$CERTIFICATE_ARN" ]; then
     echo "Using certificate: $CERTIFICATE_ARN"
-    npx cdk deploy VTT-CDN --require-approval never -c certificateArn="$CERTIFICATE_ARN" "$@"
+    npx cdk deploy "$CDN_STACK" --require-approval never -c certificateArn="$CERTIFICATE_ARN" "$@"
 else
-    npx cdk deploy VTT-CDN --require-approval never "$@"
+    npx cdk deploy "$CDN_STACK" --require-approval never "$@"
 fi
 
 cd ..
@@ -57,7 +54,7 @@ if [ "$BUILD_NEXTJS" = true ] || [ -d "out" ]; then
     
     # Get bucket name from stack
     BUCKET_NAME=$(aws cloudformation describe-stacks \
-        --stack-name VTT-Foundation \
+        --stack-name "$FOUNDATION_STACK" \
         --query 'Stacks[0].Outputs[?OutputKey==`WebsiteBucketName`].OutputValue' \
         --output text \
         --region us-east-1)
@@ -78,7 +75,7 @@ if [ "$BUILD_NEXTJS" = true ] || [ -d "out" ]; then
         
         # Invalidate CloudFront
         DIST_ID=$(aws cloudformation describe-stacks \
-            --stack-name VTT-CDN \
+            --stack-name "$CDN_STACK" \
             --query 'Stacks[0].Outputs[?OutputKey==`DistributionId`].OutputValue' \
             --output text \
             --region us-east-1)
@@ -96,4 +93,4 @@ fi
 echo "✅ CDN deployment complete!"
 echo ""
 echo "📋 Your site is available at:"
-echo "   https://www.vocaltechniquetranslator.com"
+echo "   https://www.$DOMAIN_NAME"
