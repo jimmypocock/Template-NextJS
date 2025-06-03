@@ -38,48 +38,42 @@ npm run build
 
 # Deploy CDN stack
 echo "☁️  Deploying CDN distribution..."
-# Pass the certificate ARN from environment variable if it exists
-if [ -n "$CERTIFICATE_ARN" ]; then
-    echo "Using certificate: $CERTIFICATE_ARN"
-    npx cdk deploy "$CDN_STACK" --require-approval never -c certificateArn="$CERTIFICATE_ARN" "$@"
-else
-    npx cdk deploy "$CDN_STACK" --require-approval never "$@"
-fi
+npx cdk deploy "$CDN_STACK" --require-approval never --context createCertificate=true "$@"
 
 cd ..
 
 # Upload content to S3 after CDN is deployed
 if [ "$BUILD_NEXTJS" = true ] || [ -d "out" ]; then
     echo "📦 Uploading NextJS build to S3..."
-    
+
     # Get bucket name from stack
     BUCKET_NAME=$(aws cloudformation describe-stacks \
         --stack-name "$FOUNDATION_STACK" \
         --query 'Stacks[0].Outputs[?OutputKey==`WebsiteBucketName`].OutputValue' \
         --output text \
         --region us-east-1)
-    
+
     if [ -n "$BUCKET_NAME" ]; then
         # Sync NextJS output to S3
         aws s3 sync out/ s3://$BUCKET_NAME/ \
             --delete \
             --cache-control "public, max-age=31536000" \
             --exclude "*.html" || true
-            
+
         # HTML files get shorter cache
         aws s3 sync out/ s3://$BUCKET_NAME/ \
             --delete \
             --cache-control "public, max-age=3600" \
             --exclude "*" \
             --include "*.html" || true
-        
+
         # Invalidate CloudFront
         DIST_ID=$(aws cloudformation describe-stacks \
             --stack-name "$CDN_STACK" \
             --query 'Stacks[0].Outputs[?OutputKey==`DistributionId`].OutputValue' \
             --output text \
             --region us-east-1)
-            
+
         if [ -n "$DIST_ID" ]; then
             echo "🔄 Invalidating CloudFront cache..."
             aws cloudfront create-invalidation \
