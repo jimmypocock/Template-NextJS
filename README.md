@@ -272,67 +272,209 @@ Update `package.json`:
 
 ## AWS Deployment
 
+Deploy your Next.js application to AWS with enterprise-grade infrastructure including CloudFront CDN, S3 storage, SSL certificates, and security features.
+
 ### Prerequisites
 
-1. **AWS CLI** configured with appropriate credentials
-2. **AWS CDK** installed globally: `npm install -g aws-cdk`
-3. **Domain** registered (for production deployment)
+1. **AWS Account** with appropriate permissions
+2. **AWS CLI** configured:
+   ```bash
+   # For standard credentials
+   aws configure
+   
+   # For AWS SSO (recommended)
+   aws sso login --profile your-profile-name
+   # Then add to .env: AWS_PROFILE=your-profile-name
+   ```
+3. **Node.js** 18.x or later
+4. **Domain** registered (for production deployment)
 
-### Installation
+### 🚀 Quick Deployment (3 Steps)
 
+#### Step 1: Configure Environment
 ```bash
-# Install CDK dependencies
+# Copy and configure environment
+cp .env.example .env
+
+# Edit .env and add:
+# - AWS_PROFILE=your-profile-name (if using SSO)
+# - AWS_ACCOUNT_ID=123456789012
+# - DOMAIN_NAME=yourdomain.com
+# - APP_NAME=your-app-name
+
+# Install CDK dependencies (one time only)
 npm run cdk:install
-
-# Bootstrap CDK (first time only)
-npx cdk bootstrap
 ```
 
-### Deployment Options
-
-#### Option 1: Deploy Everything (Recommended)
-
+#### Step 2: First Time Deployment
 ```bash
-npm run deploy:all
+# Deploy everything including new certificate
+npm run deploy:all -- -c createCertificate=true -c notificationEmail=your-email@example.com
 ```
 
-#### Option 2: Deploy Individual Stacks
+**Note:** The deployment will output your CloudFront distribution URL (e.g., `d1234abcd.cloudfront.net`) - save this for DNS setup!
 
-```bash
-# Deploy in order:
-npm run deploy:foundation
-npm run deploy:cert
-npm run deploy:edge
-npm run deploy:waf
-npm run deploy:cdn
-npm run deploy:app
-npm run deploy:monitoring
-```
+#### Step 3: Certificate Validation (Required!)
+After deployment starts, you MUST validate your SSL certificate:
+
+1. **Open AWS Certificate Manager** in the AWS Console (us-east-1 region)
+2. **Find your certificate** and click on it
+3. **Copy the CNAME records** - you'll see 2 records:
+   - One for `yourdomain.com`
+   - One for `www.yourdomain.com`
+4. **Add BOTH CNAME records to your DNS provider:**
+   - Name: `_abc123def` (use only the prefix part)
+   - Value: `_xyz789.acm-validations.aws.` (use the full value)
+5. **Wait for validation** - Status must show "Issued" for BOTH domains (5-30 minutes)
+
+### 📍 DNS Configuration (Post-Deployment)
+
+After deployment completes successfully:
+
+1. **Note the CloudFront URL** from deployment output (e.g., `d1234abcd.cloudfront.net`)
+
+2. **Configure your DNS records:**
+
+   **Option A - Using Route 53:**
+   ```
+   Type: A Record (ALIAS)
+   Name: yourdomain.com
+   Value: d1234abcd.cloudfront.net (your CloudFront distribution)
+   
+   Type: A Record (ALIAS) 
+   Name: www.yourdomain.com
+   Value: d1234abcd.cloudfront.net (your CloudFront distribution)
+   ```
+
+   **Option B - Other DNS Providers:**
+   ```
+   Type: CNAME
+   Name: www
+   Value: d1234abcd.cloudfront.net
+   
+   Type: CNAME or ALIAS (if supported)
+   Name: @ (or blank)
+   Value: d1234abcd.cloudfront.net
+   ```
+
+3. **Wait for DNS propagation** (15 minutes to 2 hours)
+
+### ✅ Post-Deployment Checklist
+
+- [ ] Certificate shows "Issued" for BOTH domains in ACM
+- [ ] CloudFront distribution status is "Deployed"
+- [ ] DNS records added (both www and non-www)
+- [ ] Site loads at `https://www.yourdomain.com` (after propagation)
+- [ ] Non-www redirects to www automatically
+- [ ] HTTP redirects to HTTPS automatically
+- [ ] Email confirmation received for billing alerts
 
 ### Infrastructure Overview
 
+Your deployment creates these AWS resources:
+
 | Stack | Purpose | Resources |
 |-------|---------|-----------|
-| Foundation | Core infrastructure | S3 buckets, IAM roles |
-| Certificate | SSL certificates | ACM certificates |
-| Edge Functions | Lambda@Edge functions | Lambda functions |
-| WAF | Web security | WAF rules, IP filtering |
-| CDN | Content delivery | CloudFront distribution |
-| App | Application hosting | S3 static hosting |
-| Monitoring | Observability | CloudWatch dashboards |
+| **Foundation** | Core infrastructure | S3 buckets for content and logs |
+| **Certificate** | SSL/TLS | ACM certificate (create once, never delete) |
+| **Edge Functions** | URL handling | CloudFront functions for redirects |
+| **WAF** | Security | Rate limiting, geo-blocking |
+| **CDN** | Content delivery | CloudFront distribution |
+| **App** | Website content | Static files deployment |
+| **Monitoring** | Observability | CloudWatch dashboards, billing alerts |
 
-### Post-Deployment
+**Key Features:**
+- Automatic S3 bucket policy configuration (no manual fixes needed!)
+- All traffic redirects to `https://www.yourdomain.com`
+- Enterprise security headers and WAF protection
+- Automatic billing alerts at $10, $50, and $100
+
+### Common Commands
 
 ```bash
+# Update website content only
+npm run build && npm run deploy:app
+
+# Update infrastructure
+npm run deploy:all
+
 # Check deployment status
 npm run status:all
 
 # Enable maintenance mode
 npm run maintenance:on
-
-# Disable maintenance mode
+# ... do maintenance work ...
 npm run maintenance:off
 ```
+
+### 💰 Cost Estimates
+
+For a low-traffic site, expect ~$6-10/month:
+- **S3**: ~$0.023/GB/month
+- **CloudFront**: ~$0.085/GB data transfer  
+- **WAF**: ~$5/month + $0.60/million requests
+- **Route 53**: ~$0.50/month (if used)
+
+### 🚨 Troubleshooting
+
+#### "403 Forbidden" Error
+**This is NORMAL!** CloudFront takes 15-20 minutes to propagate globally. 
+- Wait 15-20 minutes after deployment completes
+- Verify DNS points to CloudFront (NOT to S3 directly)
+- Clear browser cache and try again
+- Check S3 has content: `aws s3 ls s3://yourdomain.com-app/`
+
+#### Certificate Not Validating
+- Ensure you added BOTH CNAME records (www and non-www)
+- Records must be added exactly as shown in ACM
+- Check with: `dig _abc123.yourdomain.com CNAME`
+- Both domains must show "Issued" status
+
+#### DNS Not Working
+- Verify CloudFront distribution is "Deployed" status
+- DNS propagation can take up to 2 hours
+- Test CloudFront directly: `https://d1234abcd.cloudfront.net`
+- Some DNS providers don't support ALIAS for root domain - use www subdomain
+
+#### Build Errors
+```bash
+# Clear caches and rebuild
+rm -rf .next out node_modules
+npm install
+npm run build
+
+# CDK TypeScript errors
+cd cdk && rm -rf lib/*.js lib/*.d.ts && npm run build
+```
+
+### 🗑️ Complete Cleanup / Deletion
+
+To completely remove all AWS resources and stop all charges:
+
+```bash
+npm run destroy:all
+```
+
+This will:
+- Delete all 7 CloudFormation stacks in the correct order
+- Empty and delete S3 buckets (website and logs)
+- Remove CloudFront distribution (takes 15-20 minutes)
+- Remove WAF, monitoring, and all other resources
+- Optionally preserve your SSL certificate for future use
+
+**Note:** You must manually remove DNS records pointing to CloudFront.
+
+### 📚 Complete Deployment Guide
+
+For advanced topics including:
+- Individual stack deployment
+- Using existing certificates
+- Complete redeployment procedures
+- Monitoring and logs setup
+- Security configuration details
+- Custom domain configurations
+
+**See the [Complete Deployment Guide](docs/DEPLOYMENT.md)**
 
 ## Development Scripts
 
@@ -342,6 +484,7 @@ npm run maintenance:off
 | `npm run build` | Build for production |
 | `npm run start` | Start production server |
 | `npm run lint` | Run ESLint |
+| `npm run build:cdk` | Build CDK TypeScript (done automatically during deploy) |
 | `npm run cdk:synth` | Synthesize CDK templates |
 | `npm run status` | Check stack status |
 
@@ -421,9 +564,27 @@ npm run maintenance:off
 
 ## Troubleshooting
 
-### Common Issues
+### Common Deployment Issues
 
-**Build Errors**
+**403 Forbidden After Deployment**
+- This is normal! CloudFront takes 15-20 minutes to propagate globally
+- The S3 bucket policy is automatically configured during CDN deployment
+- Verify DNS records point to CloudFront distribution (not S3 directly)
+- Check S3 bucket has index.html: `aws s3 ls s3://your-bucket-name/`
+- Clear browser cache or test in incognito mode
+
+**Certificate Validation Issues**
+- Ensure certificate is in us-east-1 region
+- Verify BOTH www and non-www validation records are added
+- Check validation: `dig _prefix.yourdomain.com CNAME +short`
+- Both domains must show "Issued" status in ACM
+
+**Stack Stuck in UPDATE_IN_PROGRESS**
+- Run `npm run status:all` to check status
+- Wait for completion (can take 30+ minutes for some stacks)
+- If truly stuck, check CloudFormation console for rollback
+
+**Build and Development Errors**
 
 ```bash
 # Clear Next.js cache
@@ -432,31 +593,30 @@ rm -rf .next
 # Reinstall dependencies
 rm -rf node_modules package-lock.json
 npm install
+
+# CDK TypeScript errors
+cd cdk && rm -f lib/*.d.ts && npm run build
 ```
 
-**CDK Deployment Errors**
+**AWS Credential Issues**
 
 ```bash
-# Check AWS credentials
+# Verify credentials
 aws sts get-caller-identity
 
-# Verify CDK bootstrap
+# For SSO users
+aws sso login --profile your-profile-name
+
+# Bootstrap CDK (first time per account/region)
 npx cdk bootstrap
-
-# Check stack status
-npm run status:all
 ```
-
-**Environment Variables**
-- Ensure all required variables are set in `.env`
-- Check AWS credentials and permissions
-- Verify domain ownership for certificates
 
 ### Getting Help
 
-1. Check the AWS CloudFormation console for detailed error messages
-2. Review CloudWatch logs for runtime issues
-3. Use `npm run diagnose:stack` for troubleshooting specific stacks
+1. Check AWS CloudFormation console for detailed error messages
+2. Review deployment outputs for CloudFront domain and other resources
+3. Monitor CloudWatch logs for runtime issues
+4. Use `npm run diagnose:stack` for specific stack troubleshooting
 
 ## Contributing
 

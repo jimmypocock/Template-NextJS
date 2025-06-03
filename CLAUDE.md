@@ -34,6 +34,12 @@ This is a production-ready Next.js 15 template with comprehensive AWS infrastruc
 - `npm run maintenance:on` - Enable maintenance mode
 - `npm run maintenance:off` - Disable maintenance mode
 
+### TODO Management
+- `npm run todo` - Display current TODO items
+- `npm run todo:add` - Add a new TODO item
+- `npm run todo:complete` - Mark a TODO item as completed
+- `npm run todo:progress` - Update a TODO item's progress
+
 ## Architecture
 
 ### Frontend Stack
@@ -57,6 +63,7 @@ The infrastructure uses a decoupled stack architecture (see `cdk/src/ARCHITECTUR
 - **Google Analytics** with consent management (`components/GoogleAnalytics.tsx`)
 - **Google AdSense** with privacy-compliant setup (`components/AdSense/`)
 - **Cookie Consent Management Platform** (`components/GoogleCMP.tsx`)
+- **Consent Initialization** (`components/GoogleConsentInit.tsx`) - Handles initial consent state setup
 
 ## Key Directories
 
